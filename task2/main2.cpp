@@ -58,7 +58,8 @@ void Searcher(std::string main_s, std::string sub_s, std::vector<int>& vec, std:
 
 	for (std::size_t i = 0; i < length; ++i)
 	{
-
+		std::size_t sz = sub_s.find(main_s, i);
+		vec.push_back(sz + block_start);
 
 	}
 
@@ -86,7 +87,12 @@ void parallel_find(std::string main_s, std::string sub_s, std::vector<int> & vec
 
 	const std::size_t block_size = length_m / num_threads;
 
-	
+	for (auto i = 1; i < num_threads; ++i)
+	{
+		std::string sub = sub_s.substr(i * block_size - length_m + 2, 2 * length_m - 2);
+		std::size_t it = sub.find(sub_s);
+		vec.push_back(i * block_size - length_m + 2 + it);
+	}
 
 	std::vector < std::thread > threads(num_threads - 1);
 
@@ -112,7 +118,17 @@ void parallel_find(std::string main_s, std::string sub_s, std::vector<int> & vec
 
 int main(int argc, char** argv)
 {
+	std::string sub_s("CAGTCAGACGTCATCACTAGCTAGC");
+	std::string main_s("TGC");
+	std::size_t length = main_s.length();
+	std::vector <std::size_t> vec;
 
+	parallel_find(std::ref(vec), main_s, sub_s);
+
+	for (auto i : vec)
+	{
+		std::cout << (i) << "\t" << sub_s.substr(i, length) << std::endl;
+	}
 
 
 	system("pause");
